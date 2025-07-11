@@ -1,0 +1,39 @@
+# Node modules
+node_modules/
+
+# Next.js build output
+.next/
+
+# Production build
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env files
+.env*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional: Prisma
+prisma/migrations/*/README.md
+
+# Optional: Ignore coverage output
+coverage/
+
+# Optional: Ignore static exports
+export/ 
