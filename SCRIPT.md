@@ -209,12 +209,7 @@ Steps
 
 Update Prisma Schema:
 
-Add a Media model to schema.prisma:model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-}
+Add a Media model to schema.prisma:
 
 model Media {
   id           String   @id @default(cuid())

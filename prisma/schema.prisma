@@ -16,3 +16,20 @@ model User {
   password  String
   createdAt DateTime @default(now())
 }
+
+model Media {
+  id           String   @id @default(cuid())
+  userId       String
+  filename     String
+  s3Key        String
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now())
+  takenAt      DateTime?
+  isDeleted    Boolean  @default(false)
+  isFavorite   Boolean  @default(false)
+  thumbnailKey String?
+  isUploaded   Boolean  @default(false)
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import MediaGrid from '@/components/MediaGrid';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -39,11 +39,16 @@ export default function Home() {
   if (loading) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-md p-6 text-center">
-        <h2 className="text-2xl font-bold mb-4">Welcome{user ? `, ${user.email}` : ''}!</h2>
-        <Button onClick={handleLogout} className="mt-4">Logout</Button>
-      </Card>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto py-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-2">
+          <div className="text-xl font-bold">
+            Welcome{user ? `, ${user.email}` : ''}!
+          </div>
+          <Button onClick={handleLogout} className="w-full sm:w-auto">Logout</Button>
+        </div>
+        <MediaGrid />
+      </div>
     </div>
   );
 }
