@@ -1,25 +1,19 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Button } from './button';
-
-export default function Navbar() {
+import {Button} from '@/components/ui/button';
+export default function Navbar({handleLogout}) {
   const router = useRouter();
   return (
-    <nav className="sticky top-0 z-20 w-full bg-white/80 dark:bg-gray-900/80 shadow-sm backdrop-blur border-b">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        <Link href="/" className="font-bold text-xl tracking-tight text-primary">
+    <nav className="sticky top-0 z-20 bg-black w-full dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+      <div className="container mx-auto flex items-center justify-between px-2 py-2">
+        <Link href="/" className="font-semibold text-lg tracking-tight text-gray-900 dark:text-gray-100">
           EulerPic
         </Link>
-        <div className="flex gap-2">
-          <Link href="/">
-            <Button variant={router.pathname === '/' ? 'default' : 'outline'} size="sm">Home</Button>
-          </Link>
-          <Link href="/login">
-            <Button variant={router.pathname === '/login' ? 'default' : 'outline'} size="sm">Login</Button>
-          </Link>
-          <Link href="/signup">
-            <Button variant={router.pathname === '/signup' ? 'default' : 'outline'} size="sm">Sign Up</Button>
-          </Link>
+        <div className="flex gap-4">
+          <Link href="/" className={`text-sm ${router.pathname === '/' ? 'font-bold underline' : 'text-gray-600 dark:text-gray-300 hover:underline'}`}>Home</Link>
+          <Link href="/login" className={`text-sm ${router.pathname === '/login' ? 'font-bold underline' : 'text-gray-600 dark:text-gray-300 hover:underline'}`}>Login</Link>
+          <Link href="/signup" className={`text-sm ${router.pathname === '/signup' ? 'font-bold underline' : 'text-gray-600 dark:text-gray-300 hover:underline'}`}>Sign Up</Link>
+          <Button onClick={handleLogout} className="w-full sm:w-auto" variant="default">Logout</Button>
         </div>
       </div>
     </nav>

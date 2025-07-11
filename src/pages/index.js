@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Button } from '@/components/ui/button';
 import MediaGrid from '@/components/MediaGrid';
+import Navbar from '@/components/ui/navbar';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -39,13 +39,12 @@ export default function Home() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-2">
-          <div className="text-xl font-bold">
-            Welcome{user ? `, ${user.email}` : ''}!
-          </div>
-          <Button onClick={handleLogout} className="w-full sm:w-auto">Logout</Button>
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-base">
+      <Navbar handleLogout={()=>handleLogout()} />
+      {/* Navbar is rendered globally in _app.js, so do not render here */}
+      <div className="container mx-auto py-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-2">
+          <div className="text-xl font-bold text-gray-800 dark:text-gray-100">Welcome{user ? `, ${user.email}` : ''}!</div>
         </div>
         <MediaGrid />
       </div>

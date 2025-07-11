@@ -72,38 +72,38 @@ export default function MediaCard({ media, url, mediaList, currentIndex }) {
     <>
       <div
         ref={ref}
-        className="rounded shadow border bg-white dark:bg-gray-900 p-2 flex flex-col items-center cursor-pointer"
+        className="rounded bg-white dark:bg-gray-900 p-1 flex flex-col items-center cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 focus-within:bg-gray-50 dark:focus-within:bg-gray-800"
         onClick={handleOpen}
       >
         {visible ? (
           media.mimeType.startsWith('image') ? (
-            <img src={url} alt={media.filename} className="w-full h-40 object-cover rounded mb-2" loading="lazy" />
+            <img src={url} alt={media.filename} className="w-full h-40 object-cover rounded mb-1" loading="lazy" />
           ) : (
-            <video src={url} controls className="w-full h-40 object-cover rounded mb-2" preload="none" />
+            <video src={url} controls className="w-full h-40 object-cover rounded mb-1" preload="none" />
           )
         ) : (
-          <div className="w-full h-40 bg-gray-200 dark:bg-gray-800 animate-pulse rounded mb-2" />
+          <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 animate-pulse rounded mb-1" />
         )}
-        <div className="text-xs truncate w-full text-center">{media.filename}</div>
+        <div className="text-xs truncate w-full text-center text-gray-600 dark:text-gray-400" title={media.filename}>{media.filename}</div>
       </div>
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={handleClose}>
-          <div className="bg-white dark:bg-gray-900 rounded shadow-lg max-w-3xl w-full p-4 relative flex flex-col items-center" onClick={e => e.stopPropagation()}>
-            <button className="absolute top-2 right-2 text-2xl font-bold" onClick={handleClose}>&times;</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={handleClose}>
+          <div className="bg-white dark:bg-gray-900 rounded max-w-2xl w-full p-4 relative flex flex-col items-center border border-gray-200 dark:border-gray-800" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-2 right-2 text-2xl font-bold text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" onClick={handleClose}>&times;</button>
             {fullUrl ? (
               currentMedia.mimeType.startsWith('image') ? (
-                <img src={fullUrl} alt={currentMedia.filename} className="max-h-[70vh] w-auto mx-auto" />
+                <img src={fullUrl} alt={currentMedia.filename} className="max-h-[60vh] w-auto mx-auto" />
               ) : (
-                <video src={fullUrl} controls autoPlay className="max-h-[70vh] w-auto mx-auto" controlsList="nodownload" style={{ width: '100%' }} />
+                <video src={fullUrl} controls autoPlay className="max-h-[60vh] w-auto mx-auto" controlsList="nodownload" style={{ width: '100%' }} />
               )
             ) : (
-              <div className="text-center py-10">Loading...</div>
+              <div className="text-center py-10 text-gray-400">Loading...</div>
             )}
             <div className="mt-2 text-center text-xs text-gray-500">{currentMedia.filename}</div>
             <div className="flex items-center justify-between w-full mt-4">
-              <button onClick={handlePrev} disabled={modalIndex === 0} className="text-2xl px-4 py-2" aria-label="Previous">&#8592;</button>
+              <button onClick={handlePrev} disabled={modalIndex === 0} className="text-2xl px-4 py-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Previous">&#8592;</button>
               <div className="flex-1" />
-              <button onClick={handleNext} disabled={mediaList && modalIndex === mediaList.length - 1} className="text-2xl px-4 py-2" aria-label="Next">&#8594;</button>
+              <button onClick={handleNext} disabled={mediaList && modalIndex === mediaList.length - 1} className="text-2xl px-4 py-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Next">&#8594;</button>
             </div>
           </div>
         </div>

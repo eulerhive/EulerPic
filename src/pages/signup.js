@@ -45,16 +45,14 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-gray-800 px-2">
-      <Card className="w-full max-w-md animate-fade-in-up shadow-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <CardHeader className="flex flex-col items-center gap-2">
-          {/* Logo/Brand Placeholder */}
-          <div className="mb-2 flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary text-2xl font-bold">
-            {/* Replace with your logo if available */}
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900 px-2">
+      <Card className="w-full max-w-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <CardHeader className="flex flex-col items-center gap-2 pb-0">
+          <div className="mb-2 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-primary text-xl font-bold">
             EH
           </div>
-          <CardTitle className="text-3xl font-bold">Sign Up</CardTitle>
-          <CardDescription className="text-center">Create your account to get started.</CardDescription>
+          <CardTitle className="text-2xl font-semibold">Sign Up</CardTitle>
+          <CardDescription className="text-center text-gray-500 dark:text-gray-400">Create your account to get started.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -75,23 +73,16 @@ export default function Signup() {
                 </button>
               </div>
             </div>
-            <Button type="submit" disabled={loading} className="w-full mt-2">{loading ? 'Signing up...' : 'Sign Up'}</Button>
+            <Button type="submit" disabled={loading} className="w-full mt-2" variant="default">{loading ? 'Signing up...' : 'Sign Up'}</Button>
           </form>
-          {message && <div className={`mt-4 text-center text-sm ${message.includes('success') ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{message}</div>}
+          {message && <div className={`mt-4 text-center text-xs ${message.includes('success') ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{message}</div>}
         </CardContent>
-        <CardFooter className="flex flex-col gap-2 items-center">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+        <CardFooter className="flex flex-col gap-2 items-center border-t border-gray-100 dark:border-gray-800 mt-2 pt-4">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
             Already have an account? <Link href="/login" className="underline">Login</Link>
           </div>
         </CardFooter>
       </Card>
-      <style jsx global>{`
-        @keyframes fade-in-up {
-          0% { opacity: 0; transform: translateY(40px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up { animation: fade-in-up 0.7s cubic-bezier(.39,.575,.565,1) both; }
-      `}</style>
     </div>
   );
 } 

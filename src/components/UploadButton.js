@@ -89,12 +89,12 @@ export default function UploadButton({ onUploadComplete }) {
   }, [onUploadComplete]);
 
   return (
-    <div>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded p-2">
       {ready && (
         <Dashboard
           uppy={uppyRef.current}
           proudlyDisplayPoweredByUppy={false}
-          height={400}
+          height={360}
           showProgressDetails
         />
       )}

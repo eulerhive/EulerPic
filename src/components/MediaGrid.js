@@ -106,17 +106,17 @@ export default function MediaGrid() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex items-center gap-4">
-        <Button onClick={() => setDrawerOpen(true)} variant="default">Upload</Button>
-        <Button onClick={handleSelectAll} variant="outline">{selected.length === media.length ? 'Unselect All' : 'Select All'}</Button>
-        <Button onClick={handleDownload} variant="secondary" disabled={!selected.length}>Download</Button>
-        <Button onClick={handleDelete} variant="destructive" disabled={!selected.length}>Delete</Button>
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <Button onClick={() => setDrawerOpen(true)} variant="default" className="min-w-[90px] h-9 font-semibold">Upload</Button>
+        <Button onClick={handleSelectAll} variant="outline" className="min-w-[90px] h-9 font-semibold">{selected.length === media.length ? 'Unselect All' : 'Select All'}</Button>
+        <Button onClick={handleDownload} variant="secondary" disabled={!selected.length} className="min-w-[90px] h-9 font-semibold">Download</Button>
+        <Button onClick={handleDelete} variant="destructive" disabled={!selected.length} className="min-w-[90px] h-9 font-semibold">Delete</Button>
       </div>
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-lg relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 w-full max-w-md relative border border-gray-200 dark:border-gray-800">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl"
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
               onClick={() => setDrawerOpen(false)}
               aria-label="Close"
             >
@@ -127,19 +127,21 @@ export default function MediaGrid() {
         </div>
       )}
       {loading ? (
-        <div>Loading...</div>
+        <div className="text-center text-gray-400 py-10">Loading...</div>
+      ) : media.length === 0 ? (
+        <div className="text-center text-gray-400 py-16 text-lg">No media yet. Upload your first photo or video!</div>
       ) : (
         Object.entries(grouped).map(([date, items]) => (
           <div key={date}>
-            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-2 px-1 font-bold text-lg border-b">{date}</div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
+            <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 py-2 px-1 font-bold text-base border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100">{date}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8 py-4">
               {items.map(m => (
-                <div key={m.id} className="relative">
+                <div key={m.id} className="relative group transition-transform duration-150 hover:scale-[1.025] hover:shadow-md">
                   <input
                     type="checkbox"
                     checked={selected.includes(m.id)}
                     onChange={() => handleSelect(m.id)}
-                    className="absolute top-2 left-2 z-10 w-5 h-5 accent-primary"
+                    className="absolute top-2 left-2 z-10 w-4 h-4 accent-primary bg-white border border-gray-300 rounded opacity-60 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-150"
                     onClick={e => e.stopPropagation()}
                   />
                   <MediaCard media={m} url={urls[m.id]} mediaList={media} currentIndex={media.findIndex(x => x.id === m.id)} />
