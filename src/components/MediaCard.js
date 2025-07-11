@@ -1,6 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 async function fetchPresignedUrl(s3Key) {
   const token = localStorage.getItem('token');
@@ -22,10 +25,16 @@ export default function MediaCard({ media, url, mediaList, currentIndex, onSelec
   const ref = useRef();
   // Initialize visible based on cache
   const [visible, setVisible] = useState(() => loadedImages.has(media.s3Key));
+  const [loaded, setLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [fullUrl, setFullUrl] = useState(null);
   const [modalIndex, setModalIndex] = useState(currentIndex || 0);
   const [hovered, setHovered] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [imgStart, setImgStart] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (loadedImages.has(media.s3Key)) {
@@ -57,6 +66,8 @@ export default function MediaCard({ media, url, mediaList, currentIndex, onSelec
           previewUrlCache.set(s3Key, full);
           setFullUrl(full);
         }
+        setZoom(1);
+        setPosition({ x: 0, y: 0 });
       })();
     }
   }, [modalOpen, modalIndex, mediaList]);
@@ -64,11 +75,15 @@ export default function MediaCard({ media, url, mediaList, currentIndex, onSelec
   const handleOpen = () => {
     setModalIndex(currentIndex || 0);
     setModalOpen(true);
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
   };
 
   const handleClose = () => {
     setModalOpen(false);
     setFullUrl(null);
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
   };
 
   const handlePrev = (e) => {
@@ -101,67 +116,174 @@ export default function MediaCard({ media, url, mediaList, currentIndex, onSelec
   const handleDelete = async (e) => {
     e.stopPropagation();
     if (onDelete) await onDelete(media.id);
-    toast.success('Deleted!');
   };
   const handleDownload = async (e) => {
     e.stopPropagation();
     if (onDownload) await onDownload(media.id);
-    toast.success('Download started!');
   };
+
+  // Zoom controls
+  const handleZoomIn = () => setZoom(z => Math.min(z + 0.25, 3));
+  const handleZoomOut = () => setZoom(z => Math.max(z - 0.25, 1));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  // Pan controls
+  const handleMouseDown = (e) => {
+    if (zoom === 1) return;
+    setDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setImgStart({ ...position });
+  };
+  const handleMouseMove = (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    setPosition({ x: imgStart.x + dx, y: imgStart.y + dy });
+  };
+  const handleMouseUp = () => setDragging(false);
+
+  // Mouse wheel zoom
+  const handleWheel = (e) => {
+    if (!modalOpen) return;
+    e.preventDefault();
+    let newZoom = zoom - e.deltaY * 0.0015; // scroll up = zoom in
+    newZoom = Math.max(1, Math.min(3, newZoom));
+    setZoom(newZoom);
+    if (newZoom === 1) setPosition({ x: 0, y: 0 });
+  };
+
+  // Touch events for mobile
+  const handleTouchStart = (e) => {
+    if (zoom === 1) return;
+    if (e.touches.length === 1) {
+      setDragging(true);
+      setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      setImgStart({ ...position });
+    }
+  };
+  const handleTouchMove = (e) => {
+    if (!dragging || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - dragStart.x;
+    const dy = e.touches[0].clientY - dragStart.y;
+    setPosition({ x: imgStart.x + dx, y: imgStart.y + dy });
+  };
+  const handleTouchEnd = () => setDragging(false);
 
   return (
     <>
-      <div
+      <Card
         ref={ref}
-        className={
-          `relative rounded-xl bg-gray-900 border border-gray-800 p-1 flex flex-col items-center cursor-pointer shadow-md transition-all hover:scale-[1.025] hover:shadow-lg focus-within:bg-gray-800 group`
-        }
+        className="relative p-1 flex flex-col items-center cursor-pointer group"
         onClick={handleOpen}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        {/* Overlay controls */}
-        <div className={`absolute top-2 right-2 flex flex-col gap-2 z-20 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} md:opacity-0 md:group-hover:opacity-100`}>
-          <button onClick={handleSelect} className={`rounded-full p-1 bg-gray-800/80 hover:bg-primary focus:outline-none border-2 ${selected ? 'border-primary' : 'border-gray-700'}`} title={selected ? 'Unselect' : 'Select'}>
-            {/* Check/Select icon */}
-            {selected ? (
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-            ) : (
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
-            )}
-          </button>
-          <button onClick={handleDownload} className="rounded-full p-1 bg-gray-800/80 hover:bg-primary focus:outline-none border-2 border-gray-700" title="Download">
-            {/* Download icon */}
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4" /></svg>
-          </button>
-          <button onClick={handleDelete} className="rounded-full p-1 bg-gray-800/80 hover:bg-red-600 focus:outline-none border-2 border-gray-700" title="Delete">
-            {/* Delete icon */}
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
+        {/* Selector always visible in top-right */}
+        <div className="absolute top-2 right-2 z-20">
+          <Button
+            onClick={handleSelect}
+            variant={selected ? 'default' : 'outline'}
+            size="sm"
+            aria-label={selected ? 'Unselect' : 'Select'}
+            className="rounded-full border-1 border-primary bg-white/80 dark:bg-gray-900/80 h-6 w-6"
+            icon={selected ? (
+              <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+            ) : null}
+          />
         </div>
         {/* Media preview */}
-        {visible ? (
-          media.mimeType.startsWith('image') ? (
-            <img src={url} alt={media.filename} className="w-full h-40 object-cover rounded-lg mb-1" loading="lazy" />
-          ) : (
-            <video src={url} controls className="w-full h-40 object-cover rounded-lg mb-1" preload="none" />
-          )
-        ) : (
-          <div className="w-full h-40 bg-gray-800 animate-pulse rounded-lg mb-1" />
-        )}
+        <div className="w-full h-40 relative mb-1">
+          {!loaded && <div className="absolute inset-0 w-full h-full bg-gray-800 animate-pulse rounded-lg z-10" />}
+          {visible && media.mimeType.startsWith('image') && (
+            <img
+              src={url}
+              alt={media.filename}
+              className={`w-full h-40 object-cover rounded-lg transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              loading="lazy"
+              onLoad={() => setLoaded(true)}
+            />
+          )}
+          {visible && !media.mimeType.startsWith('image') && (
+            <video
+              src={url}
+              controls
+              className={`w-full h-40 object-cover rounded-lg transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              preload="none"
+              onLoadedData={() => setLoaded(true)}
+            />
+          )}
+        </div>
         {/* Filename */}
         <div className="text-xs truncate w-full text-center text-gray-400" title={media.filename}>{media.filename}</div>
-      </div>
+      </Card>
       {/* Modal preview */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={handleClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={handleClose}
+          onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+          onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
+        >
           <div className="bg-gray-900 rounded-xl max-w-5xl w-full p-4 relative flex flex-col items-center border border-gray-800" onClick={e => e.stopPropagation()}>
             <button className="absolute top-2 right-2 text-2xl font-bold text-gray-400 hover:text-gray-200" onClick={handleClose}>&times;</button>
+            {/* Zoom controls */}
+            <div className="absolute top-2 left-2 flex gap-2 z-10">
+              <button onClick={handleZoomOut} className="rounded bg-gray-700 text-white px-2 py-1 text-lg font-bold hover:bg-gray-600" aria-label="Zoom out" disabled={zoom <= 1}>−</button>
+              <button onClick={handleZoomIn} className="rounded bg-gray-700 text-white px-2 py-1 text-lg font-bold hover:bg-gray-600" aria-label="Zoom in" disabled={zoom >= 3}>+</button>
+              <button onClick={handleResetZoom} className="rounded bg-gray-700 text-white px-2 py-1 text-sm font-bold hover:bg-gray-600" aria-label="Reset zoom" disabled={zoom === 1}>Reset</button>
+            </div>
             {fullUrl ? (
               currentMedia.mimeType.startsWith('image') ? (
-                <img src={fullUrl} alt={currentMedia.filename} className="max-h-[70vh] max-w-full w-auto h-auto mx-auto rounded-lg" style={{ objectFit: 'contain' }} />
+                <div
+                  tabIndex={0}
+                  className="max-h-[70vh] max-w-full w-auto h-auto mx-auto rounded-lg overflow-hidden flex items-center justify-center outline-none"
+                  style={{ cursor: zoom > 1 ? (dragging ? 'grabbing' : 'grab') : 'default', outline: 'none' }}
+                  onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
+                  onWheel={handleWheel}
+                >
+                  <img
+                    src={fullUrl}
+                    alt={currentMedia.filename}
+                    className="select-none pointer-events-auto"
+                    style={{
+                      transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                      transition: dragging ? 'none' : 'transform 0.2s',
+                      maxHeight: '70vh',
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      userSelect: 'none',
+                    }}
+                    draggable={false}
+                  />
+                </div>
               ) : (
-                <video src={fullUrl} controls autoPlay className="max-h-[70vh] max-w-full w-auto h-auto mx-auto rounded-lg" controlsList="nodownload" style={{ objectFit: 'contain' }} />
+                <div
+                  tabIndex={0}
+                  className="max-h-[70vh] max-w-full w-auto h-auto mx-auto rounded-lg overflow-hidden flex items-center justify-center outline-none"
+                  style={{ cursor: zoom > 1 ? (dragging ? 'grabbing' : 'grab') : 'default', outline: 'none' }}
+                  onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
+                  onWheel={handleWheel}
+                >
+                  <video
+                    src={fullUrl}
+                    controls
+                    autoPlay
+                    className="select-none pointer-events-auto"
+                    controlsList="nodownload"
+                    style={{
+                      transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                      transition: dragging ? 'none' : 'transform 0.2s',
+                      maxHeight: '70vh',
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      userSelect: 'none',
+                    }}
+                    draggable={false}
+                  />
+                </div>
               )
             ) : (
               <div className="text-center py-10 text-gray-400">Loading...</div>

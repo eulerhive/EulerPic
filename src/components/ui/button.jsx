@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority";
+import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 import { cn } from "@/lib/utils"
 
@@ -40,16 +41,26 @@ function Button({
   variant,
   size,
   asChild = false,
+  icon = null,
+  children,
   ...props
 }) {
-  const Comp = asChild ? Slot : "button"
-
+  const Comp = asChild ? Slot : "button";
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
-      {...props} />
+      {...props}
+    >
+      {children}
+      {icon}
+    </Comp>
   );
 }
+
+// Example usage:
+// <Button icon={<ArrowRightIcon className="w-4 h-4" />}>
+//   Next
+// </Button>
 
 export { Button, buttonVariants }

@@ -32,7 +32,7 @@ export default function Signup() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
-      credentials: 'include', // <-- Add this line
+      credentials: 'include',
     });
     const data = await res.json();
     if (res.ok) {
@@ -45,26 +45,26 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900 px-2">
-      <Card className="w-full max-w-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <div className="flex min-h-screen items-center justify-center bg-background px-2">
+      <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col items-center gap-2 pb-0">
-          <div className="mb-2 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-primary text-xl font-bold">
+          <div className="mb-2 flex items-center justify-center w-10 h-10 rounded-full bg-muted text-primary text-xl font-bold">
             EH
           </div>
           <CardTitle className="text-2xl font-semibold">Sign Up</CardTitle>
-          <CardDescription className="text-center text-gray-500 dark:text-gray-400">Create your account to get started.</CardDescription>
+          <CardDescription className="text-center">Create your account to get started.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <Label htmlFor="email" className="mb-1 block">Email</Label>
-              <Input id="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full" placeholder="you@example.com" />
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com" />
             </div>
             <div>
-              <Label htmlFor="password" className="mb-1 block">Password</Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input id="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full pr-10" placeholder="••••••••" />
-                <button type="button" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+                <Input id="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" />
+                <button type="button" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none">
                   {showPassword ? (
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.336-3.236.938-4.675m2.062 2.675A9.956 9.956 0 0112 5c5.523 0 10 4.477 10 10 0 1.657-.336 3.236-.938 4.675m-2.062-2.675A9.956 9.956 0 0112 19c-1.657 0-3.236-.336-4.675-.938" /></svg>
                   ) : (
@@ -75,7 +75,7 @@ export default function Signup() {
             </div>
             <Button type="submit" disabled={loading} className="w-full mt-2" variant="default">{loading ? 'Signing up...' : 'Sign Up'}</Button>
           </form>
-          {message && <div className={`mt-4 text-center text-xs ${message.includes('success') ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{message}</div>}
+          {message && <div className={`mt-4 text-center text-xs ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>{message}</div>}
         </CardContent>
         <CardFooter className="flex flex-col gap-2 items-center border-t border-gray-100 dark:border-gray-800 mt-2 pt-4">
           <div className="text-xs text-gray-500 dark:text-gray-400">

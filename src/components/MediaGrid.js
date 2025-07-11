@@ -5,6 +5,20 @@ import { Button } from './ui/button';
 import JSZip from 'jszip';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ArrowUpTrayIcon, CheckCircleIcon, ArrowDownTrayIcon, TrashIcon } from '@heroicons/react/24/solid';
+
+function ActionBar({
+  onUpload, onSelectAll, onDownload, onDelete, selectedCount, allSelected, disableDownload, disableDelete
+}) {
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <Button onClick={onUpload} variant="default" icon={<ArrowUpTrayIcon className="w-5 h-5" />} aria-label="Upload" title="Upload" />
+      <Button onClick={onSelectAll} variant="secondary" icon={<CheckCircleIcon className="w-5 h-5" />} aria-label={allSelected ? 'Unselect All' : 'Select All'} title={allSelected ? 'Unselect All' : 'Select All'} />
+      <Button onClick={onDownload} variant="outline" disabled={disableDownload} icon={<ArrowDownTrayIcon className="w-5 h-5" />} aria-label="Download" title="Download" />
+      <Button onClick={onDelete} variant="destructive" disabled={disableDelete} icon={<TrashIcon className="w-5 h-5" />} aria-label="Delete" title="Delete" />
+    </div>
+  );
+}
 
 function groupByDate(media) {
   return media.reduce((acc, item) => {
@@ -137,17 +151,21 @@ export default function MediaGrid() {
   return (
     <div className="w-full">
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar theme="dark" />
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <Button onClick={() => setDrawerOpen(true)} variant="default" className="min-w-[90px] h-9 font-semibold">Upload</Button>
-        <Button onClick={handleSelectAll} variant="outline" className="min-w-[90px] h-9 font-semibold">{selected.length === media.length ? 'Unselect All' : 'Select All'}</Button>
-        <Button onClick={handleDownloadSelected} variant="secondary" disabled={!selected.length} className="min-w-[90px] h-9 font-semibold">Download</Button>
-        <Button onClick={handleDeleteSelected} variant="destructive" disabled={!selected.length} className="min-w-[90px] h-9 font-semibold">Delete</Button>
-      </div>
+      <ActionBar
+        onUpload={() => setDrawerOpen(true)}
+        onSelectAll={handleSelectAll}
+        onDownload={handleDownloadSelected}
+        onDelete={handleDeleteSelected}
+        selectedCount={selected.length}
+        allSelected={selected.length === media.length && media.length > 0}
+        disableDownload={!selected.length}
+        disableDelete={!selected.length}
+      />
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 w-full max-w-md relative border border-gray-200 dark:border-gray-800">
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 w-full max-w-md relative">
             <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
+              className="absolute top-2 right-2 text-2xl"
               onClick={() => setDrawerOpen(false)}
               aria-label="Close"
             >
@@ -158,9 +176,12 @@ export default function MediaGrid() {
         </div>
       )}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8 py-4">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="rounded-xl bg-gray-900 border border-gray-800 p-1 flex flex-col items-center shadow-md animate-pulse h-52" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
+          {[...Array(12)].map((_, i) => (
+            <div key={i} className="rounded-xl bg-gray-900 p-1 flex flex-col items-center animate-pulse h-52 w-full">
+              <div className="w-full h-40 bg-gray-800 rounded-lg mb-1" />
+              <div className="h-4 w-3/4 bg-gray-800 rounded mb-1" />
+            </div>
           ))}
         </div>
       ) : media.length === 0 ? (
@@ -169,7 +190,7 @@ export default function MediaGrid() {
         Object.entries(grouped).map(([date, items]) => (
           <div key={date}>
             <div className="sticky top-0 z-10 bg-gray-900 py-2 px-1 font-bold text-base border-b border-gray-800 text-gray-100">{date}</div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8 py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
               {items.map(m => (
                 <MediaCard
                   key={m.id}
