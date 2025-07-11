@@ -13,28 +13,50 @@ async function fetchPresignedUrl(s3Key) {
   return data.url;
 }
 
+// Module-level Set to track loaded images by s3Key
+const loadedImages = new Set();
+// Module-level Map to cache presigned preview URLs by s3Key
+const previewUrlCache = new Map();
+
 export default function MediaCard({ media, url, mediaList, currentIndex, onSelect, selected, onDelete, onDownload }) {
   const ref = useRef();
-  const [visible, setVisible] = useState(false);
+  // Initialize visible based on cache
+  const [visible, setVisible] = useState(() => loadedImages.has(media.s3Key));
   const [modalOpen, setModalOpen] = useState(false);
   const [fullUrl, setFullUrl] = useState(null);
   const [modalIndex, setModalIndex] = useState(currentIndex || 0);
   const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
+    if (loadedImages.has(media.s3Key)) {
+      setVisible(true);
+      return;
+    }
     const observer = new window.IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          loadedImages.add(media.s3Key);
+          observer.disconnect();
+        }
+      },
       { threshold: 0.1 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, []);
+  }, [media.s3Key]);
 
   useEffect(() => {
     if (modalOpen && mediaList && mediaList[modalIndex]) {
       (async () => {
-        const full = await fetchPresignedUrl(mediaList[modalIndex].s3Key);
-        setFullUrl(full);
+        const s3Key = mediaList[modalIndex].s3Key;
+        if (previewUrlCache.has(s3Key)) {
+          setFullUrl(previewUrlCache.get(s3Key));
+        } else {
+          const full = await fetchPresignedUrl(s3Key);
+          previewUrlCache.set(s3Key, full);
+          setFullUrl(full);
+        }
       })();
     }
   }, [modalOpen, modalIndex, mediaList]);
@@ -133,13 +155,13 @@ export default function MediaCard({ media, url, mediaList, currentIndex, onSelec
       {/* Modal preview */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={handleClose}>
-          <div className="bg-gray-900 rounded-xl max-w-2xl w-full p-4 relative flex flex-col items-center border border-gray-800" onClick={e => e.stopPropagation()}>
+          <div className="bg-gray-900 rounded-xl max-w-5xl w-full p-4 relative flex flex-col items-center border border-gray-800" onClick={e => e.stopPropagation()}>
             <button className="absolute top-2 right-2 text-2xl font-bold text-gray-400 hover:text-gray-200" onClick={handleClose}>&times;</button>
             {fullUrl ? (
               currentMedia.mimeType.startsWith('image') ? (
-                <img src={fullUrl} alt={currentMedia.filename} className="max-h-[60vh] w-auto mx-auto rounded-lg" />
+                <img src={fullUrl} alt={currentMedia.filename} className="max-h-[70vh] max-w-full w-auto h-auto mx-auto rounded-lg" style={{ objectFit: 'contain' }} />
               ) : (
-                <video src={fullUrl} controls autoPlay className="max-h-[60vh] w-auto mx-auto rounded-lg" controlsList="nodownload" style={{ width: '100%' }} />
+                <video src={fullUrl} controls autoPlay className="max-h-[70vh] max-w-full w-auto h-auto mx-auto rounded-lg" controlsList="nodownload" style={{ objectFit: 'contain' }} />
               )
             ) : (
               <div className="text-center py-10 text-gray-400">Loading...</div>
